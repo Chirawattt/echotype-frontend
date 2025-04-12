@@ -1,3 +1,5 @@
+import { VocabWord, Difficulty } from '../types/vocab';
+
 export const GAME_CONFIG = {
   COUNTDOWN_TIME: 7, // เวลาในการตอบคำถาม (วินาที)
   FEEDBACK_DELAY: 1500, // เวลาแสดงผลตอบกลับเมื่อตอบถูก (มิลลิวินาที)
@@ -20,12 +22,41 @@ export const WORD_PROMPTS = [
   "Get ready to spell...",
 ];
 
-export const VOCABULARY_LIST = [
-  { english: "hello", thai: "สวัสดี" },
-  { english: "goodbye", thai: "ลาก่อน" },
-  { english: "thank you", thai: "ขอบคุณ" },
-  { english: "water", thai: "น้ำ" },
-  { english: "food", thai: "อาหาร" },
-  { english: "friend", thai: "เพื่อน" },
-
-]; 
+export const VOCABULARY_BY_LEVEL: Record<Difficulty, VocabWord[]> = {
+  easy: [
+    { english: "cat", thai: "แมว" },
+    { english: "dog", thai: "สุนัข" },
+    { english: "bird", thai: "นก" },
+    { english: "fish", thai: "ปลา" },
+    { english: "book", thai: "หนังสือ" },
+    { english: "pen", thai: "ปากกา" },
+    { english: "car", thai: "รถยนต์" },
+    { english: "house", thai: "บ้าน" },
+    { english: "tree", thai: "ต้นไม้" },
+    { english: "sun", thai: "ดวงอาทิตย์" }
+  ],
+  medium: [
+    { english: "computer", thai: "คอมพิวเตอร์" },
+    { english: "telephone", thai: "โทรศัพท์" },
+    { english: "hospital", thai: "โรงพยาบาล" },
+    { english: "restaurant", thai: "ร้านอาหาร" },
+    { english: "teacher", thai: "ครู" },
+    { english: "student", thai: "นักเรียน" },
+    { english: "airport", thai: "สนามบิน" },
+    { english: "library", thai: "ห้องสมุด" },
+    { english: "mountain", thai: "ภูเขา" },
+    { english: "beach", thai: "ชายหาด" }
+  ],
+  hard: [
+    { english: "extraordinary", thai: "พิเศษมาก" },
+    { english: "sophisticated", thai: "ซับซ้อน" },
+    { english: "phenomenon", thai: "ปรากฏการณ์" },
+    { english: "enthusiasm", thai: "ความกระตือรือร้น" },
+    { english: "determination", thai: "ความมุ่งมั่น" },
+    { english: "opportunity", thai: "โอกาส" },
+    { english: "experience", thai: "ประสบการณ์" },
+    { english: "achievement", thai: "ความสำเร็จ" },
+    { english: "environment", thai: "สิ่งแวดล้อม" },
+    { english: "technology", thai: "เทคโนโลยี" }
+  ]
+}; 

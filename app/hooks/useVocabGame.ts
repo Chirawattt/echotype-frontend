@@ -1,6 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { VocabWord, GameResult, FeedbackState } from '../types/vocab';
-import { GAME_CONFIG, WORD_PROMPTS, VOCABULARY_LIST } from '../constants/gameConfig';
+import { VocabWord, FeedbackState, Difficulty } from '../types/vocab';
+import { GAME_CONFIG, WORD_PROMPTS, VOCABULARY_BY_LEVEL } from '../constants/gameConfig';
+
+type Result = {
+  word: string;
+  correct: boolean;
+  time: number;
+};
 
 export function useVocabGame() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -10,7 +16,7 @@ export function useVocabGame() {
   const [userInput, setUserInput] = useState("");
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_CONFIG.COUNTDOWN_TIME);
-  const [results, setResults] = useState<GameResult[]>([]);
+  const [results, setResults] = useState<Result[]>([]);
   const [feedback, setFeedback] = useState<FeedbackState>({ 
     show: false, 
     correct: false, 
@@ -23,6 +29,8 @@ export function useVocabGame() {
   const [currentWord, setCurrentWord] = useState<VocabWord | null>(null);
   const [showMeaning, setShowMeaning] = useState(false);
   const [isChangingWord, setIsChangingWord] = useState(false);
+  const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
+  const [isSelectingDifficulty, setIsSelectingDifficulty] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -37,9 +45,10 @@ export function useVocabGame() {
     currentIndexRef.current = currentWordIndex;
   }, [currentWord, currentWordIndex]);
 
-  // สร้างฟังก์ชันสุ่มคำศัพท์
-  const shuffleVocabulary = () => {
-    const shuffled = [...VOCABULARY_LIST];
+  // สร้างฟังก์ชันสุ่มคำศัพท์ตามระดับความยาก
+  const shuffleVocabulary = (level: Difficulty) => {
+    const vocabularyList = VOCABULARY_BY_LEVEL[level];
+    const shuffled = [...vocabularyList];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
@@ -297,6 +306,8 @@ export function useVocabGame() {
     setCurrentWord(null);
     setShowMeaning(false);
     setIsChangingWord(false);
+    setDifficulty(null);
+    setIsSelectingDifficulty(false);
     currentWordRef.current = null;
     currentIndexRef.current = 0;
     
@@ -308,33 +319,12 @@ export function useVocabGame() {
     if (typeof window !== "undefined" && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
-    
-    shuffleVocabulary();
   };
 
   // Start game
   const startGame = () => {
     resetGame();
-    setGameStarted(true);
-    
-    const shuffled = shuffleVocabulary();
-    const firstWord = shuffled[0];
-    setCurrentWord(firstWord);
-    currentWordRef.current = firstWord;
-    
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 100);
-    
-    setCountdownActive(false);
-    
-    setTimeout(() => {
-      if (firstWord) {
-        speak(firstWord.english, true);
-      }
-    }, 500);
+    setIsSelectingDifficulty(true);
   };
 
   // End game
@@ -375,6 +365,33 @@ export function useVocabGame() {
     };
   }, []);
 
+  // เริ่มเกมหลังจากเลือกระดับความยาก
+  const handleDifficultySelect = (selectedDifficulty: Difficulty) => {
+    setDifficulty(selectedDifficulty);
+    setIsSelectingDifficulty(false);
+    
+    const shuffled = shuffleVocabulary(selectedDifficulty);
+    const firstWord = shuffled[0];
+    setCurrentWord(firstWord);
+    currentWordRef.current = firstWord;
+    
+    setGameStarted(true);
+    
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
+    
+    setCountdownActive(false);
+    
+    setTimeout(() => {
+      if (firstWord) {
+        speak(firstWord.english, true);
+      }
+    }, 500);
+  };
+
   return {
     // State
     gameStarted,
@@ -393,6 +410,8 @@ export function useVocabGame() {
     currentWord,
     showMeaning,
     isChangingWord,
+    difficulty,
+    isSelectingDifficulty,
     
     // Refs
     inputRef,
@@ -406,6 +425,7 @@ export function useVocabGame() {
     startGame,
     handleSubmit,
     repeatWord,
-    resetGame
+    resetGame,
+    handleDifficultySelect
   };
 } 
